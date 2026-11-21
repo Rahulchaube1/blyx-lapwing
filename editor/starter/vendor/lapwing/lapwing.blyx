@@ -1,0 +1,51 @@
+use pagebreaks;
+use linefit;
+
+fn lapwing_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn lapwing_counts(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value >= 0.0 && value <= 9007199254740991.0 && value % 1.0 == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn lapwing_compute(blocks: vector, paper: f64, top: f64, bottom: f64, line: f64) -> vector {
+    let area = linefit_capacity(paper, top, bottom, line);
+    if len(area) == 0 || at(area, 1) < 1.0 {
+        return [];
+    }
+    let pages = pagebreaks_pack(blocks, at(area, 1));
+    if len(pages) == 0 {
+        return [];
+    }
+    [at(pages, 0), at(pages, 1), at(pages, 2), at(area, 1)]
+}
+
+// Preflight fixed-line document pagination with indivisible paragraphs.
+// Returns [pages, lines used on final page, unused line slots, printable lines per page]. Blocks are positive paragraph line counts. The host measures text and renders the resulting pages.
+pub fn lapwing_paginate(blocks: vector, paper: f64, top: f64, bottom: f64, line: f64) -> vector {
+    if !lapwing_counts(blocks) { return []; }
+    if !(paper > 0.0 && paper - paper == 0.0) { return []; }
+    if !(top >= 0.0 && top - top == 0.0) { return []; }
+    if !(bottom >= 0.0 && bottom - bottom == 0.0) { return []; }
+    if !(line > 0.0 && line - line == 0.0) { return []; }
+    let result = lapwing_compute(blocks, paper, top, bottom, line);
+    if !lapwing_finite(result) { return []; }
+    result
+}
